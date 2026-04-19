@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Update - BlueSquares</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-5 text-center">
+                        <img src="/img/Logo.png" alt="BlueSquares" style="max-width: 160px;" class="mb-4">
+                        <h1 class="h3 mb-3" id="result-title">Payment Update</h1>
+                        <p class="text-muted mb-4" id="result-message">Your payment provider has redirected you back to BlueSquares.</p>
+                        <a href="/" class="btn btn-primary">Return to BlueSquares</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const path = window.location.pathname.toLowerCase();
+        const title = document.getElementById('result-title');
+        const message = document.getElementById('result-message');
+
+        if (path.endsWith('/success')) {
+            title.textContent = 'Payment Submitted';
+            message.textContent = 'Your payment was submitted successfully. The invoice status will update as soon as the payment provider confirms it.';
+        } else if (path.endsWith('/cancel')) {
+            title.textContent = 'Payment Cancelled';
+            message.textContent = 'You cancelled the payment. You can return to the invoice and choose another payment option at any time.';
+        } else if (path.endsWith('/error')) {
+            title.textContent = 'Payment Error';
+            message.textContent = 'Something went wrong while sending you back from the payment provider. Please try again or contact the merchant.';
+        }
+    </script>
+</body>
+</html>

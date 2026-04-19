@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queries - BlueSquares</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background: #f8f9fa; }
+        .sidebar { min-height: 100vh; background: white; box-shadow: 2px 0 10px rgba(0,0,0,0.05); position: fixed; left: 0; top: 0; width: 250px; padding: 20px 0; }
+        .main-content { margin-left: 250px; padding: 30px; }
+        .nav-link { color: #333; padding: 12px 20px; display: flex; align-items: center; }
+        .nav-link.active, .nav-link:hover { background: #E6F2FF; color: #0066CC; }
+        .nav-link i { margin-right: 10px; }
+        .card { border: none; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; padding: 20px; } }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="text-center mb-4">
+            <img src="/img/Logo.png" alt="BlueSquares" style="max-width:150px;">
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link" href="/dashboard"><i class="bi bi-grid"></i> Dashboard</a>
+            <a class="nav-link" href="/invoices"><i class="bi bi-file-text"></i> Invoices</a>
+            <a class="nav-link" href="/clients"><i class="bi bi-people"></i> Clients</a>
+            <a class="nav-link active" href="/queries"><i class="bi bi-chat-dots"></i> Queries</a>
+            <a class="nav-link" href="/settings"><i class="bi bi-gear"></i> Settings</a>
+            <hr>
+            <a class="nav-link text-danger" href="#" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+            <div>
+                <h1 class="mb-1">Queries</h1>
+                <p class="text-muted mb-0">Respond to invoice questions coming in over WhatsApp.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Recent Queries</h5>
+                <div id="queries-list" class="d-grid gap-3">
+                    <div class="text-center py-4 text-muted">Loading queries...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="toast-container"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        if (!checkAuth()) window.location.href = '/login';
+
+        async function loadQueries() {
+            const result = await apiJson('/api/queries');
+            if (!result || !result.ok) {
+                showToast('Could not load queries.', 'error');
+                return;
+            }
+
+            const queries = result.data || [];
+            const container = document.getElementById('queries-list');
+            if (!queries.length) {
+                container.innerHTML = '<div class="text-center py-4 text-muted">No client queries yet.</div>';
+                return;
+            }
+
+            container.innerHTML = queries.map(query => `
+                <div class="border rounded-4 p-3 bg-white">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge ${query.isResolved ? 'bg-success' : 'bg-warning text-dark'}">${query.isResolved ? 'Resolved' : 'Open'}</span>
+                                <span class="small text-muted">${escapeHtml(query.invoice.invoiceNumber)} • ${escapeHtml(query.invoice.client.name)}</span>
+                            </div>
+                            <div class="mb-2">${escapeHtml(query.queryText)}</div>
+                            <div class="small text-muted mb-3">${formatDate(query.createdAt)}</div>
+                            <textarea class="form-control mb-2" rows="3" id="reply-${query.id}" placeholder="Type your response">${escapeHtml(query.merchantResponse || '')}</textarea>
+                            <button class="btn btn-primary btn-sm" onclick="sendReply('${query.id}')">Send Reply</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function sendReply(queryId) {
+            const responseText = document.getElementById(`reply-${queryId}`).value.trim();
+            if (!responseText) {
+                showToast('Enter a response first.', 'error');
+                return;
+            }
+
+            const result = await apiJson(`/api/invoices/queries/${queryId}/respond`, {
+                method: 'POST',
+                body: JSON.stringify({ response: responseText, markAsResolved: true })
+            });
+
+            if (!result || !result.ok) {
+                showToast('Could not send response.', 'error');
+                return;
+            }
+
+            showToast('Response sent.', 'success');
+            await loadQueries();
+        }
+
+        loadQueries();
+    </script>
+</body>
+</html>

@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - BlueSquares</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #0066CC;
+            --light-blue: #E6F2FF;
+            --dark-blue: #004A99;
+        }
+
+        body {
+            background: #f8f9fa;
+        }
+
+        .sidebar {
+            min-height: 100vh;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            padding: 20px 0;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        .nav-link {
+            color: #333;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+        }
+
+        .nav-link i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+
+        .stage-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 999px;
+            padding: 8px 14px;
+            font-weight: 600;
+        }
+
+        .stage-badge.pending {
+            background: #fff4d6;
+            color: #8a6d1d;
+        }
+
+        .stage-badge.in-progress {
+            background: #e7f1ff;
+            color: #0b5ed7;
+        }
+
+        .stage-badge.complete {
+            background: #e8f7ee;
+            color: #157347;
+        }
+
+        .wizard-steps {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .wizard-step {
+            border: 1px solid #dfe7f3;
+            border-radius: 14px;
+            padding: 16px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .wizard-step:hover {
+            border-color: #9dc2eb;
+        }
+
+        .wizard-step.active {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(0,102,204,0.08);
+            background: #f7fbff;
+        }
+
+        .wizard-step.complete {
+            border-color: #9dd5b1;
+            background: #f4fbf6;
+        }
+
+        .wizard-step.optional {
+            border-style: dashed;
+            background: #fcfdff;
+        }
+
+        .wizard-step-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: #edf3fb;
+            color: var(--primary-blue);
+        }
+
+        .wizard-step.complete .wizard-step-icon {
+            background: #dff4e5;
+            color: #157347;
+        }
+
+        .wizard-panel {
+            display: none;
+        }
+
+        .wizard-panel.active {
+            display: block;
+        }
+
+        .optional-box {
+            border: 1px dashed #c9d8ea;
+            border-radius: 14px;
+            background: #fafcff;
+        }
+
+        @media (max-width: 991px) {
+            .wizard-steps {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="text-center mb-4">
+            <img src="/img/Logo.png" alt="BlueSquares" style="max-width: 150px;">
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link" href="/dashboard">
+                <i class="bi bi-grid"></i> Dashboard
+            </a>
+            <a class="nav-link active" href="/settings">
+                <i class="bi bi-gear"></i> Settings
+            </a>
+            <hr>
+            <a class="nav-link text-danger" href="#" onclick="logout()">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+            <div>
+                <h1 class="mb-1">Payment Setup Wizard</h1>
+                <p class="text-muted mb-0">Work through the basics first, then add online checkout only if you need it.</p>
+            </div>
+            <a href="/dashboard" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+                    <div>
+                        <h5 class="card-title mb-1">Onboarding Progress</h5>
+                        <p class="text-muted mb-0" id="wizard-progress-text">Loading your setup progress...</p>
+                    </div>
+                    <span id="stage-badge" class="stage-badge pending">
+                        <i class="bi bi-clock-history"></i>
+                        Loading...
+                    </span>
+                </div>
+
+                <div class="progress mb-4" role="progressbar" aria-label="Setup progress">
+                    <div id="wizard-progress-bar" class="progress-bar bg-primary" style="width: 0%"></div>
+                </div>
+
+                <div id="wizard-steps" class="wizard-steps"></div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+                    <div>
+                        <h5 id="panel-title" class="card-title mb-1">Current Step</h5>
+                        <p id="panel-description" class="text-muted mb-0">Loading step guidance...</p>
+                    </div>
+                    <span id="provider-badge" class="badge bg-light text-dark border">Recommended provider</span>
+                </div>
+
+                <div id="panel-profile" class="wizard-panel">
+                    <form id="profile-form" class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Business Name</label>
+                            <input type="text" class="form-control" id="business-name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Contact Number</label>
+                            <input type="text" class="form-control" id="contact-number">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Country</label>
+                            <input type="text" class="form-control" id="country-display" disabled>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Currency</label>
+                            <input type="text" class="form-control" id="currency-display" disabled>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Business Address</label>
+                            <input type="text" class="form-control" id="address">
+                        </div>
+                        <div class="col-12 d-flex gap-2 flex-wrap">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check2-circle"></i> Save Business Profile
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" data-step-target="bank-transfer">
+                                Continue to Bank Transfer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="panel-bank-transfer" class="wizard-panel">
+                    <div class="alert alert-primary">
+                        This step unlocks the fastest payment path. Once saved, your invoices can show bank transfer details immediately.
+                    </div>
+                    <form id="bank-form" class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Bank Name</label>
+                            <input type="text" class="form-control" id="bank-name">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Account Holder Name</label>
+                            <input type="text" class="form-control" id="account-holder-name">
+                        </div>
+                        <div class="col-md-6" id="account-number-group">
+                            <label class="form-label" id="account-number-label">Account Number</label>
+                            <input type="text" class="form-control" id="account-number">
+                        </div>
+                        <div class="col-md-6" id="branch-code-group">
+                            <label class="form-label" id="branch-code-label">Branch Code</label>
+                            <input type="text" class="form-control" id="branch-code">
+                        </div>
+                        <div class="col-md-6 d-none" id="iban-group">
+                            <label class="form-label">IBAN</label>
+                            <input type="text" class="form-control" id="bank-iban">
+                        </div>
+                        <div class="col-md-6 d-none" id="bic-group">
+                            <label class="form-label">BIC / SWIFT</label>
+                            <input type="text" class="form-control" id="bank-bic">
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="statements-enabled">
+                                <label class="form-check-label" for="statements-enabled">
+                                    Enable client statements
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12 d-flex gap-2 flex-wrap">
+                            <button type="button" class="btn btn-outline-secondary" data-step-target="profile">
+                                Back
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-bank2"></i> Save Bank Transfer Details
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" data-step-target="online-payments">
+                                Continue to Online Payments
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="panel-online-payments" class="wizard-panel">
+                    <div class="optional-box p-3 mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="enable-online-payments">
+                            <label class="form-check-label fw-semibold" for="enable-online-payments">Enable online payments now</label>
+                        </div>
+                        <div class="small text-muted mt-2" id="provider-help">
+                            Loading provider guidance...
+                        </div>
+                    </div>
+
+                    <form id="payment-form" class="row g-3">
+                        <div id="payment-fields" class="row g-3"></div>
+                        <div class="col-12 d-flex gap-2 flex-wrap">
+                            <button type="button" class="btn btn-outline-secondary" data-step-target="bank-transfer">
+                                Back
+                            </button>
+                            <button type="submit" class="btn btn-outline-primary" id="save-payments-btn" disabled>
+                                <i class="bi bi-credit-card"></i> Save Online Payment Settings
+                            </button>
+                            <button type="button" class="btn btn-link text-decoration-none px-0" id="skip-payments-btn">
+                                Skip for now
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+                    <div>
+                        <h5 class="card-title mb-1">Accounting Integrations</h5>
+                        <p class="text-muted mb-0">Connect Xero or QuickBooks so you can export invoices after they are sent or paid.</p>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="border rounded-4 p-3 h-100">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-1">Xero</h6>
+                                    <div class="small text-muted">Sync invoices into Xero.</div>
+                                </div>
+                                <span class="badge bg-light text-dark border" id="xero-status">Not connected</span>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="connectAccountingProvider('xero')">Connect Xero</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="border rounded-4 p-3 h-100">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-1">QuickBooks</h6>
+                                    <div class="small text-muted">Export invoices into QuickBooks Online.</div>
+                                </div>
+                                <span class="badge bg-light text-dark border" id="quickbooks-status">Not connected</span>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="connectAccountingProvider('quickbooks')">Connect QuickBooks</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="completion-card" class="card" style="display: none;">
+            <div class="card-body">
+                <h5 class="card-title mb-1">Setup Complete</h5>
+                <p class="text-muted mb-3">Your business profile, bank transfer details, and online payment settings are all in place.</p>
+                <a href="/dashboard" class="btn btn-primary">
+                    <i class="bi bi-grid"></i> Go to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="toast-container"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        if (!checkAuth()) {
+            window.location.href = '/login';
+        }
+
+        let merchantData = null;
+        let paymentStatus = null;
+        let accountingStatus = null;
+        let activeStepId = 'profile';
+
+        const stepOrder = ['profile', 'bank-transfer', 'online-payments'];
+
+        const providerFieldMap = {
+            paystack: [
+                { id: 'paystack-public-key', label: 'Paystack Public Key', valueKey: 'paystackPublicKey' },
+                { id: 'paystack-secret-key', label: 'Paystack Secret Key', valueKey: 'paystackSecretKey' }
+            ],
+            stripe: [
+                { id: 'stripe-publishable-key', label: 'Stripe Publishable Key', valueKey: 'stripePublishableKey' },
+                { id: 'stripe-secret-key', label: 'Stripe Secret Key', valueKey: 'stripeSecretKey' }
+            ],
+            paypal: [
+                { id: 'paypal-client-id', label: 'PayPal Client ID', valueKey: 'payPalClientId' },
+                { id: 'paypal-client-secret', label: 'PayPal Client Secret', valueKey: 'payPalClientSecret' }
+            ]
+        };
+
+        async function loadSettings(preferredStepId = null) {
+            try {
+                const [profileResponse, statusResponse, accountingResponse] = await Promise.all([
+                    apiCall('/api/merchants/profile'),
+                    apiCall('/api/merchants/payment-setup-status'),
+                    apiCall('/api/accounting-integrations/status')
+                ]);
+
+                if (!profileResponse || !statusResponse || !accountingResponse || !profileResponse.ok || !statusResponse.ok || !accountingResponse.ok) {
+                    throw new Error('Failed to load settings');
+                }
+
+                merchantData = await profileResponse.json();
+                paymentStatus = await statusResponse.json();
+                accountingStatus = await accountingResponse.json();
+
+                populateForms();
+                renderPaymentFields();
+                renderWizard(preferredStepId);
+                renderAccountingStatus();
+            } catch (error) {
+                console.error(error);
+                showToast('Could not load settings right now.', 'error');
+            }
+        }
+
+        function populateForms() {
+            document.getElementById('business-name').value = merchantData.businessName || '';
+            document.getElementById('contact-number').value = merchantData.contactNumber || '';
+            document.getElementById('country-display').value = merchantData.country || '';
+            document.getElementById('currency-display').value = merchantData.currency || '';
+            document.getElementById('address').value = merchantData.address || '';
+            document.getElementById('bank-name').value = merchantData.bankName || '';
+            document.getElementById('account-holder-name').value = merchantData.accountHolderName || '';
+            document.getElementById('account-number').value = merchantData.accountNumber || '';
+            document.getElementById('branch-code').value = merchantData.branchCode || '';
+            document.getElementById('bank-iban').value = merchantData.bankIban || '';
+            document.getElementById('bank-bic').value = merchantData.bankBic || '';
+            document.getElementById('statements-enabled').checked = merchantData.statementsEnabled ?? true;
+
+            updateBankFieldsForCountry(merchantData.country);
+        }
+
+        function updateBankFieldsForCountry(country) {
+            const isIreland = country === 'IE';
+            const isUk = country === 'GB';
+
+            document.getElementById('account-number-group').classList.toggle('d-none', isIreland);
+            document.getElementById('branch-code-group').classList.toggle('d-none', isIreland);
+            document.getElementById('iban-group').classList.toggle('d-none', !isIreland);
+            document.getElementById('bic-group').classList.toggle('d-none', !isIreland);
+            document.getElementById('branch-code-label').textContent = isUk ? 'Sort Code' : 'Branch Code';
+        }
+
+        function renderWizard(preferredStepId = null) {
+            const stepsContainer = document.getElementById('wizard-steps');
+            const completedSteps = paymentStatus.steps.filter(step => step.status === 'complete').length;
+            const progressPercent = Math.round((completedSteps / stepOrder.length) * 100);
+            const stageClass = paymentStatus.onlinePaymentsReady
+                ? 'complete'
+                : paymentStatus.bankTransferReady || paymentStatus.profileReady
+                    ? 'in-progress'
+                    : 'pending';
+
+            document.getElementById('wizard-progress-bar').style.width = `${progressPercent}%`;
+            document.getElementById('wizard-progress-text').textContent =
+                `${completedSteps} of ${stepOrder.length} setup steps completed. ${paymentStatus.nextStep}`;
+            document.getElementById('stage-badge').className = `stage-badge ${stageClass}`;
+            document.getElementById('stage-badge').innerHTML = `
+                <i class="bi ${paymentStatus.onlinePaymentsReady ? 'bi-check-circle-fill' : paymentStatus.bankTransferReady || paymentStatus.profileReady ? 'bi-arrow-repeat' : 'bi-clock-history'}"></i>
+                ${paymentStatus.onboardingStageLabel}
+            `;
+
+            stepsContainer.innerHTML = paymentStatus.steps.map((step, index) => `
+                <div class="wizard-step ${step.status === 'complete' ? 'complete' : ''} ${step.status === 'optional' ? 'optional' : ''}" data-step-id="${step.id}">
+                    <div class="wizard-step-icon">
+                        ${step.status === 'complete' ? '<i class="bi bi-check-lg"></i>' : index + 1}
+                    </div>
+                    <div class="fw-semibold mb-1">${step.label}</div>
+                    <div class="small text-muted text-capitalize mb-1">${step.status}</div>
+                    <div class="small text-muted">${step.description}</div>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.wizard-step').forEach(step => {
+                step.addEventListener('click', () => setActiveStep(step.dataset.stepId));
+            });
+
+            const stepFromQuery = new URLSearchParams(window.location.search).get('step');
+            const fallbackStep = getDefaultStep();
+            setActiveStep(preferredStepId || stepFromQuery || fallbackStep);
+            updateCompletionCard();
+        }
+
+        function getDefaultStep() {
+            const firstPending = paymentStatus.steps.find(step => step.status !== 'complete' && step.status !== 'optional');
+            return firstPending?.id || 'online-payments';
+        }
+
+        function setActiveStep(stepId) {
+            activeStepId = stepId;
+
+            document.querySelectorAll('.wizard-step').forEach(step => {
+                step.classList.toggle('active', step.dataset.stepId === stepId);
+            });
+
+            document.querySelectorAll('.wizard-panel').forEach(panel => {
+                panel.classList.toggle('active', panel.id === `panel-${stepId}`);
+            });
+
+            const stepMeta = paymentStatus.steps.find(step => step.id === stepId);
+            if (stepMeta) {
+                document.getElementById('panel-title').textContent = stepMeta.label;
+                document.getElementById('panel-description').textContent = stepMeta.description;
+            }
+        }
+
+        function updateCompletionCard() {
+            document.getElementById('completion-card').style.display =
+                paymentStatus.onlinePaymentsReady ? 'block' : 'none';
+        }
+
+        function renderAccountingStatus() {
+            if (!accountingStatus) return;
+
+            document.getElementById('xero-status').textContent = accountingStatus.xeroConnected ? 'Connected' : 'Not connected';
+            document.getElementById('xero-status').className = `badge ${accountingStatus.xeroConnected ? 'bg-success' : 'bg-light text-dark border'}`;
+
+            document.getElementById('quickbooks-status').textContent = accountingStatus.quickBooksConnected ? 'Connected' : 'Not connected';
+            document.getElementById('quickbooks-status').className = `badge ${accountingStatus.quickBooksConnected ? 'bg-success' : 'bg-light text-dark border'}`;
+        }
+
+        function renderPaymentFields() {
+            const recommendedProvider = paymentStatus.recommendedProvider;
+            const fields = providerFieldMap[recommendedProvider] || [];
+            const fieldsWrapper = document.getElementById('payment-fields');
+            const isConfigured = paymentStatus.onlinePaymentsReady;
+            const providerEnabledMap = {
+                paystack: merchantData.paystackEnabled,
+                stripe: merchantData.stripeEnabled,
+                paypal: merchantData.payPalEnabled
+            };
+            const isEnabled = isConfigured || providerEnabledMap[recommendedProvider] || false;
+
+            document.getElementById('enable-online-payments').checked = isEnabled;
+            document.getElementById('save-payments-btn').disabled = !isEnabled;
+            document.getElementById('provider-badge').textContent = `Recommended: ${paymentStatus.recommendedProviderLabel}`;
+            document.getElementById('provider-help').textContent = paymentStatus.recommendedProviderDescription;
+
+            fieldsWrapper.innerHTML = fields.map(field => `
+                <div class="col-md-6 payment-provider-field ${isEnabled ? '' : 'd-none'}">
+                    <label class="form-label">${field.label}</label>
+                    <input type="text" class="form-control" id="${field.id}" value="${merchantData[field.valueKey] || ''}">
+                </div>
+            `).join('');
+        }
+
+        function buildProfilePayload(includeBankFields) {
+            const bankValues = includeBankFields
+                ? {
+                    bankName: document.getElementById('bank-name').value.trim(),
+                    accountHolderName: document.getElementById('account-holder-name').value.trim(),
+                    accountNumber: document.getElementById('account-number').value.trim(),
+                    branchCode: document.getElementById('branch-code').value.trim(),
+                    bankIban: document.getElementById('bank-iban').value.trim(),
+                    bankBic: document.getElementById('bank-bic').value.trim(),
+                    statementsEnabled: document.getElementById('statements-enabled').checked
+                }
+                : {
+                    bankName: merchantData.bankName || '',
+                    accountHolderName: merchantData.accountHolderName || '',
+                    accountNumber: merchantData.accountNumber || '',
+                    branchCode: merchantData.branchCode || '',
+                    bankIban: merchantData.bankIban || '',
+                    bankBic: merchantData.bankBic || '',
+                    statementsEnabled: merchantData.statementsEnabled ?? true
+                };
+
+            return {
+                ...merchantData,
+                businessName: document.getElementById('business-name').value.trim(),
+                address: document.getElementById('address').value.trim(),
+                contactNumber: document.getElementById('contact-number').value.trim(),
+                ...bankValues
+            };
+        }
+
+        function buildPaymentPayload() {
+            const recommendedProvider = paymentStatus.recommendedProvider;
+            const isEnabled = document.getElementById('enable-online-payments').checked;
+
+            const payload = {
+                payFastEnabled: merchantData.payFastEnabled || false,
+                payFastMerchantId: merchantData.payFastMerchantId || '',
+                payFastMerchantKey: merchantData.payFastMerchantKey || '',
+                paystackEnabled: merchantData.paystackEnabled || false,
+                paystackSecretKey: merchantData.paystackSecretKey || '',
+                paystackPublicKey: merchantData.paystackPublicKey || '',
+                ozowEnabled: merchantData.ozowEnabled || false,
+                ozowSiteCode: merchantData.ozowSiteCode || '',
+                ozowPrivateKey: merchantData.ozowPrivateKey || '',
+                stripeEnabled: merchantData.stripeEnabled || false,
+                stripePublishableKey: merchantData.stripePublishableKey || '',
+                stripeSecretKey: merchantData.stripeSecretKey || '',
+                payPalEnabled: merchantData.payPalEnabled || false,
+                payPalClientId: merchantData.payPalClientId || '',
+                payPalClientSecret: merchantData.payPalClientSecret || '',
+                bankIban: merchantData.bankIban || '',
+                bankBic: merchantData.bankBic || ''
+            };
+
+            if (recommendedProvider === 'paystack') {
+                payload.paystackEnabled = isEnabled;
+                payload.paystackPublicKey = isEnabled ? document.getElementById('paystack-public-key').value.trim() : payload.paystackPublicKey;
+                payload.paystackSecretKey = isEnabled ? document.getElementById('paystack-secret-key').value.trim() : payload.paystackSecretKey;
+            }
+
+            if (recommendedProvider === 'stripe') {
+                payload.stripeEnabled = isEnabled;
+                payload.stripePublishableKey = isEnabled ? document.getElementById('stripe-publishable-key').value.trim() : payload.stripePublishableKey;
+                payload.stripeSecretKey = isEnabled ? document.getElementById('stripe-secret-key').value.trim() : payload.stripeSecretKey;
+            }
+
+            if (recommendedProvider === 'paypal') {
+                payload.payPalEnabled = isEnabled;
+                payload.payPalClientId = isEnabled ? document.getElementById('paypal-client-id').value.trim() : payload.payPalClientId;
+                payload.payPalClientSecret = isEnabled ? document.getElementById('paypal-client-secret').value.trim() : payload.payPalClientSecret;
+            }
+
+            return payload;
+        }
+
+        document.querySelectorAll('[data-step-target]').forEach(button => {
+            button.addEventListener('click', () => setActiveStep(button.dataset.stepTarget));
+        });
+
+        document.getElementById('enable-online-payments').addEventListener('change', (event) => {
+            const enabled = event.target.checked;
+            document.querySelectorAll('.payment-provider-field').forEach(field => {
+                field.classList.toggle('d-none', !enabled);
+            });
+            document.getElementById('save-payments-btn').disabled = !enabled;
+        });
+
+        document.getElementById('profile-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            try {
+                const response = await apiCall('/api/merchants/profile', {
+                    method: 'POST',
+                    body: JSON.stringify(buildProfilePayload(false))
+                });
+
+                if (!response || !response.ok) {
+                    throw new Error('Failed to save profile');
+                }
+
+                merchantData = await response.json();
+                showToast('Business profile saved.', 'success');
+                await loadSettings('bank-transfer');
+            } catch (error) {
+                console.error(error);
+                showToast('Could not save business profile.', 'error');
+            }
+        });
+
+        document.getElementById('bank-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            try {
+                const response = await apiCall('/api/merchants/profile', {
+                    method: 'POST',
+                    body: JSON.stringify(buildProfilePayload(true))
+                });
+
+                if (!response || !response.ok) {
+                    throw new Error('Failed to save bank transfer details');
+                }
+
+                merchantData = await response.json();
+                showToast('Bank transfer details saved. You can start collecting payments now.', 'success');
+                await loadSettings('online-payments');
+            } catch (error) {
+                console.error(error);
+                showToast('Could not save bank transfer details.', 'error');
+            }
+        });
+
+        document.getElementById('payment-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            if (!document.getElementById('enable-online-payments').checked) {
+                showToast('You can skip online payments for now and still use bank transfer.', 'info');
+                return;
+            }
+
+            try {
+                const response = await apiCall('/api/merchants/payment-settings', {
+                    method: 'POST',
+                    body: JSON.stringify(buildPaymentPayload())
+                });
+
+                if (!response || !response.ok) {
+                    throw new Error('Failed to save payment settings');
+                }
+
+                showToast('Online payment settings saved.', 'success');
+                await loadSettings('online-payments');
+            } catch (error) {
+                console.error(error);
+                showToast('Could not save online payment settings.', 'error');
+            }
+        });
+
+        document.getElementById('skip-payments-btn').addEventListener('click', () => {
+            document.getElementById('enable-online-payments').checked = false;
+            document.querySelectorAll('.payment-provider-field').forEach(field => field.classList.add('d-none'));
+            document.getElementById('save-payments-btn').disabled = true;
+            showToast('No problem. Bank transfer is enough to get started.', 'info');
+        });
+
+        async function connectAccountingProvider(provider) {
+            const result = await apiJson(`/api/accounting-integrations/${provider}/connect`, {
+                method: 'POST'
+            });
+
+            if (!result || !result.ok) {
+                showToast(result?.data?.message || `Could not start ${provider} connection.`, 'error');
+                return;
+            }
+
+            window.location.href = result.data.authorizationUrl;
+        }
+
+        const integrationResult = new URLSearchParams(window.location.search).get('integration');
+        if (integrationResult === 'xero_success')
+            showToast('Xero connected successfully.', 'success');
+        if (integrationResult === 'quickbooks_success')
+            showToast('QuickBooks connected successfully.', 'success');
+        if (integrationResult === 'xero_failed' || integrationResult === 'quickbooks_failed')
+            showToast('Accounting connection failed. Check your app credentials and redirect URLs.', 'error');
+
+        loadSettings();
+    </script>
+</body>
+</html>

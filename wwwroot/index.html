@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlueSquares | WhatsApp Invoicing & Payment Reminders for Small Businesses</title>
+    <meta name="description" content="Stop chasing clients for payments. Send invoices on WhatsApp, automate reminders, accept bank transfer or payment links, and get paid faster with BlueSquares.">
+    <meta name="robots" content="index,follow">
+    <link rel="canonical" href="https://squares.blue/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="BlueSquares | Stop Chasing Clients for Payments">
+    <meta property="og:description" content="Send invoices on WhatsApp, follow up automatically, and get paid faster without awkward reminders.">
+    <meta property="og:url" content="https://squares.blue/">
+    <meta property="og:site_name" content="BlueSquares">
+    <meta property="og:image" content="https://squares.blue/img/Logo.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="BlueSquares | WhatsApp Invoicing & Payment Reminders">
+    <meta name="twitter:description" content="Send invoices on WhatsApp, follow up automatically, and get paid faster without awkward reminders.">
+    <meta name="twitter:image" content="https://squares.blue/img/Logo.png">
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "BlueSquares",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "description": "WhatsApp-first invoicing and collections software for small businesses.",
+      "offers": {
+        "@type": "Offer",
+        "price": "129",
+        "priceCurrency": "ZAR"
+      },
+      "url": "https://squares.blue/"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Can I send invoices on WhatsApp with BlueSquares?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. BlueSquares is built to send invoices on WhatsApp so clients see them faster and can respond immediately."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does BlueSquares send automatic payment reminders?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. You can automate payment reminders so overdue clients are followed up consistently without manual chasing."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do clients pay invoices?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Clients can pay by bank transfer or online payment links, depending on the payment options configured by the merchant."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does BlueSquares support recurring monthly billing?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. BlueSquares supports recurring monthly invoice schedules so you can automate repeat billing for regular clients."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I sync BlueSquares with Xero or QuickBooks?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. BlueSquares includes Xero and QuickBooks export support, especially for UK and Ireland workflows."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need a credit card to start?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. You can start your 14-day BlueSquares trial without a credit card."
+          }
+        }
+      ]
+    }
+    </script>
+    <style>
+        :root {
+            --primary-blue: #0066CC;
+            --light-blue: #E6F2FF;
+            --dark-blue: #004A99;
+            --white: #FFFFFF;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --soft-gray: #F7F9FC;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: var(--white) !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .navbar-brand img {
+            height: 40px;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            border: none;
+            padding: 12px 30px;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: var(--dark-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 102, 204, 0.3);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+            padding: 12px 30px;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-blue);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .section-padding {
+            padding: 90px 0;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%);
+            color: var(--white);
+            padding: 120px 0 90px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&h=800&fit=crop') center/cover;
+            opacity: 0.08;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3.6rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .hero .lead {
+            font-size: 1.25rem;
+            margin-bottom: 24px;
+        }
+
+        .hero-bullets {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 30px;
+        }
+
+        .hero-bullets li {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            font-size: 1.02rem;
+        }
+
+        .hero-bullets i {
+            color: #BFE1FF;
+            margin-top: 2px;
+        }
+
+        .hero-card {
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 24px;
+            padding: 26px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+        }
+
+        .hero-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        .hero-card .mini-stat {
+            background: rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .hero-card .mini-stat strong {
+            display: block;
+            font-size: 1.3rem;
+        }
+
+        .section-heading {
+            max-width: 760px;
+            margin: 0 auto 50px;
+            text-align: center;
+        }
+
+        .section-heading h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .section-heading p {
+            color: var(--text-light);
+            font-size: 1.08rem;
+            margin-bottom: 0;
+        }
+
+        .problem-section {
+            background: var(--soft-gray);
+        }
+
+        .problem-list {
+            list-style: none;
+            padding: 0;
+            margin: 24px 0 0;
+        }
+
+        .problem-list li {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 14px;
+            font-size: 1.05rem;
+        }
+
+        .problem-list i {
+            color: var(--primary-blue);
+            margin-top: 3px;
+        }
+
+        .benefit-card,
+        .testimonial-card,
+        .comparison-card {
+            background: var(--white);
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+            height: 100%;
+        }
+
+        .benefit-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: var(--light-blue);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-blue);
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+
+        .step-card {
+            text-align: center;
+            padding: 24px;
+        }
+
+        .step-number {
+            width: 64px;
+            height: 64px;
+            background: var(--primary-blue);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.7rem;
+            font-weight: 700;
+        }
+
+        .testimonials-section {
+            background: var(--soft-gray);
+        }
+
+        .testimonial-card blockquote {
+            font-size: 1.08rem;
+            margin-bottom: 16px;
+        }
+
+        .pricing-section {
+            background: var(--light-blue);
+        }
+
+        .pricing-card {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 14px 35px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-6px);
+        }
+
+        .price {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary-blue);
+        }
+
+        .comparison-card h3 {
+            font-size: 1.35rem;
+            margin-bottom: 18px;
+        }
+
+        .faq-section {
+            background: var(--soft-gray);
+        }
+
+        .accordion-item {
+            border: none;
+            border-radius: 16px !important;
+            overflow: hidden;
+            margin-bottom: 14px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+        }
+
+        .accordion-button {
+            font-weight: 600;
+            padding: 20px 24px;
+        }
+
+        .accordion-button:not(.collapsed) {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            box-shadow: none;
+        }
+
+        .accordion-button:focus {
+            box-shadow: 0 0 0 0.25rem rgba(0,102,204,0.12);
+        }
+
+        .comparison-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .comparison-list li {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .comparison-list .bad {
+            color: #b02a37;
+        }
+
+        .comparison-list .good {
+            color: #157347;
+        }
+
+        .final-cta {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%);
+            color: var(--white);
+        }
+
+        .waitlist-section {
+            background: var(--text-dark);
+            color: var(--white);
+        }
+
+        .footer {
+            background: var(--text-dark);
+            color: var(--white);
+            padding: 50px 0 20px;
+        }
+
+        .footer a {
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: var(--light-blue);
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 110px 0 70px;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .section-heading h2 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img src="/img/Logo.png" alt="BlueSquares logo">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="#problem">Problem</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#solution">Solution</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#how-it-works">How It Works</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#pricing">Pricing</a></li>
+                    <li class="nav-item ms-2 dropdown">
+                        <button class="btn btn-light btn-sm dropdown-toggle d-flex align-items-center gap-1"
+                                id="countrySwitcher" data-bs-toggle="dropdown" aria-expanded="false"
+                                title="Change your country">
+                            <span id="current-flag">🌍</span>
+                            <span id="current-country-label" class="d-none d-md-inline small fw-semibold">Country</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="countrySwitcher">
+                            <li><h6 class="dropdown-header">Select your country</h6></li>
+                            <li><button class="dropdown-item d-flex align-items-center gap-2" onclick="switchCountry('ZA')">🇿🇦 <span>South Africa</span></button></li>
+                            <li><button class="dropdown-item d-flex align-items-center gap-2" onclick="switchCountry('GB')">🇬🇧 <span>United Kingdom</span></button></li>
+                            <li><button class="dropdown-item d-flex align-items-center gap-2" onclick="switchCountry('IE')">🇮🇪 <span>Ireland</span></button></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item ms-3">
+                        <a href="/login" class="btn btn-outline-primary">Login</a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a href="/signup" class="btn btn-primary">Start Free Trial</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="container hero-content">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-7" data-aos="fade-right">
+                        <h1>Stop chasing clients for payments</h1>
+                        <p class="lead">Send invoices on WhatsApp, follow up automatically, and get paid faster — without awkward reminders.</p>
+                        <ul class="hero-bullets">
+                            <li><i class="bi bi-check-circle-fill"></i><span>Send invoices directly on WhatsApp, not ignored emails.</span></li>
+                            <li><i class="bi bi-check-circle-fill"></i><span>Automatic reminders so you don’t have to chase.</span></li>
+                            <li><i class="bi bi-check-circle-fill"></i><span>Accept bank transfer or payment links.</span></li>
+                            <li><i class="bi bi-check-circle-fill"></i><span>Sync with Xero &amp; QuickBooks for UK &amp; Ireland workflows.</span></li>
+                        </ul>
+                        <div class="d-flex gap-3 flex-wrap">
+                            <a href="/signup" class="btn btn-light btn-lg">Start getting paid faster — free for 14 days</a>
+                            <a href="#pricing" class="btn btn-outline-light btn-lg">See Pricing</a>
+                        </div>
+                        <div class="mt-4">
+                            <small>No credit card required • Send your first invoice in under 60 seconds</small>
+                        </div>
+                    </div>
+                    <div class="col-lg-5" data-aos="fade-left">
+                        <div class="hero-card">
+                            <h3>What BlueSquares helps you do</h3>
+                            <div class="mini-stat">
+                                <strong>Send on WhatsApp</strong>
+                                <span>Get invoices seen faster than email-only workflows.</span>
+                            </div>
+                            <div class="mini-stat">
+                                <strong>Automate follow-ups</strong>
+                                <span>Keep reminders professional and consistent every month.</span>
+                            </div>
+                            <div class="mini-stat mb-0">
+                                <strong>Stay in control</strong>
+                                <span>Track invoices, recurring billing, statements, and accounting exports from one place.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="problem" class="problem-section section-padding">
+            <div class="container">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-6" data-aos="fade-up">
+                        <div class="section-heading text-start mx-0 mb-0">
+                            <h2>Chasing payments is costing you time — and money</h2>
+                            <p>Most small businesses still handle invoicing and payment follow-ups manually. That slows down cash flow and creates admin you should not have to do every month.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-6" data-aos="fade-up" data-aos-delay="120">
+                        <ul class="problem-list">
+                            <li><i class="bi bi-x-circle-fill"></i><span>send invoices manually</span></li>
+                            <li><i class="bi bi-x-circle-fill"></i><span>follow up on WhatsApp or email</span></li>
+                            <li><i class="bi bi-x-circle-fill"></i><span>forget to chase overdue payments</span></li>
+                            <li><i class="bi bi-x-circle-fill"></i><span>don’t know who has paid and who hasn’t</span></li>
+                        </ul>
+                        <p class="mt-4 mb-0">And every month, money gets delayed or lost. BlueSquares fixes that — without turning your business into an accounting project.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="solution" class="section-padding">
+            <div class="container">
+                <div class="section-heading" data-aos="fade-up">
+                    <h2>Everything you need to get paid — in one simple flow</h2>
+                    <p>BlueSquares is built for collections, not bookkeeping complexity.</p>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-6" data-aos="fade-up">
+                        <div class="benefit-card">
+                            <div class="benefit-icon"><i class="bi bi-whatsapp"></i></div>
+                            <h3 class="h4">Send invoices where clients actually respond</h3>
+                            <p class="mb-0">Send invoices directly on WhatsApp, not emails that get ignored. Your clients see it instantly and can respond immediately.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6" data-aos="fade-up" data-aos-delay="80">
+                        <div class="benefit-card">
+                            <div class="benefit-icon"><i class="bi bi-arrow-repeat"></i></div>
+                            <h3 class="h4">Get paid without awkward follow-ups</h3>
+                            <p class="mb-0">Set automatic reminders so clients are nudged at the right time — professionally and consistently.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6" data-aos="fade-up" data-aos-delay="120">
+                        <div class="benefit-card">
+                            <div class="benefit-icon"><i class="bi bi-cash-coin"></i></div>
+                            <h3 class="h4">Make it easy for clients to pay</h3>
+                            <p class="mb-0">Let clients pay via bank transfer or payment links — no friction, no delays.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6" data-aos="fade-up" data-aos-delay="180">
+                        <div class="benefit-card">
+                            <div class="benefit-icon"><i class="bi bi-bar-chart-line"></i></div>
+                            <h3 class="h4">Keep your accounting in sync</h3>
+                            <p class="mb-0">Export invoices directly to Xero and QuickBooks for UK &amp; Ireland workflows — no double capturing, no messy admin.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="how-it-works" class="section-padding" style="background: var(--soft-gray);">
+            <div class="container">
+                <div class="section-heading" data-aos="fade-up">
+                    <h2>From invoice to payment — in minutes</h2>
+                    <p>No accounting complexity. Just faster payments.</p>
+                </div>
+                <div class="row">
+                    <div class="col-md-3" data-aos="fade-up">
+                        <div class="step-card">
+                            <div class="step-number">1</div>
+                            <h3 class="h5">Create invoice</h3>
+                            <p class="mb-0">Add your client and amount — takes under 60 seconds.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3" data-aos="fade-up" data-aos-delay="80">
+                        <div class="step-card">
+                            <div class="step-number">2</div>
+                            <h3 class="h5">Send on WhatsApp</h3>
+                            <p class="mb-0">Your client receives it instantly.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3" data-aos="fade-up" data-aos-delay="120">
+                        <div class="step-card">
+                            <div class="step-number">3</div>
+                            <h3 class="h5">Automatic follow-ups</h3>
+                            <p class="mb-0">No more manual chasing.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3" data-aos="fade-up" data-aos-delay="180">
+                        <div class="step-card">
+                            <div class="step-number">4</div>
+                            <h3 class="h5">Get paid</h3>
+                            <p class="mb-0">Client pays via link or transfer — you get notified.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonials-section section-padding">
+            <div class="container">
+                <div class="section-heading" data-aos="fade-up">
+                    <h2>Built for real small businesses</h2>
+                    <p>Collections software should feel practical, not corporate.</p>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-6" data-aos="fade-up">
+                        <div class="testimonial-card">
+                            <blockquote>“I stopped chasing clients every month. Payments just come in.”</blockquote>
+                            <p class="mb-0 text-muted">— Small business owner</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6" data-aos="fade-up" data-aos-delay="80">
+                        <div class="testimonial-card">
+                            <blockquote>“WhatsApp invoices get responses way faster than email.”</blockquote>
+                            <p class="mb-0 text-muted">— Freelancer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="pricing" class="pricing-section section-padding">
+            <div class="container">
+                <div class="section-heading" data-aos="fade-up">
+                    <h2>Simple pricing. No surprises.</h2>
+                    <p>Recover just one delayed payment — and it pays for itself. Most businesses recover 1–2 unpaid invoices per month using BlueSquares.</p>
+                </div>
+                <div class="row justify-content-center" data-aos="fade-up">
+                    <div class="col-md-7 col-lg-6" id="pricing-card-wrapper">
+                        <div class="pricing-card text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading pricing...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-5" data-aos="fade-up">
+                    <p class="text-muted mb-2">Also available in:</p>
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="switchCountry('ZA')">🇿🇦 South Africa</button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="switchCountry('GB')">🇬🇧 United Kingdom</button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="switchCountry('IE')">🇮🇪 Ireland</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-padding">
+            <div class="container">
+                <div class="section-heading" data-aos="fade-up">
+                    <h2>Why not just use accounting software?</h2>
+                    <p>You don’t need full accounting to get paid — you need better collections.</p>
+                </div>
+                <div class="row g-4">
+                    <div class="col-lg-6" data-aos="fade-up">
+                        <div class="comparison-card">
+                            <h3>Traditional accounting tools</h3>
+                            <ul class="comparison-list">
+                                <li><i class="bi bi-dash-circle-fill bad"></i><span>Built for bookkeeping</span></li>
+                                <li><i class="bi bi-dash-circle-fill bad"></i><span>Complex setup</span></li>
+                                <li><i class="bi bi-dash-circle-fill bad"></i><span>Not designed for collections</span></li>
+                                <li><i class="bi bi-dash-circle-fill bad"></i><span>Clients ignore email invoices</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-6" data-aos="fade-up" data-aos-delay="80">
+                        <div class="comparison-card">
+                            <h3>BlueSquares</h3>
+                            <ul class="comparison-list">
+                                <li><i class="bi bi-check-circle-fill good"></i><span>Built to get you paid faster</span></li>
+                                <li><i class="bi bi-check-circle-fill good"></i><span>WhatsApp-first delivery</span></li>
+                                <li><i class="bi bi-check-circle-fill good"></i><span>Automated follow-ups</span></li>
+                                <li><i class="bi bi-check-circle-fill good"></i><span>Simple, mobile-first</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="waitlist" class="waitlist-section section-padding" style="display: none;">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8 text-center" data-aos="fade-up">
+                        <h2 class="display-5 fw-bold mb-4">We’re coming to your country soon</h2>
+                        <p class="lead mb-4">BlueSquares is currently available in South Africa, the United Kingdom, and Ireland. Join our waitlist and we’ll let you know when we launch in <span id="user-country-name">your country</span>.</p>
+                        <form id="waitlist-form" class="row g-3 justify-content-center">
+                            <div class="col-md-6">
+                                <input type="email" class="form-control form-control-lg" id="waitlist-email" placeholder="Enter your email" required>
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-light btn-lg">Join Waitlist</button>
+                            </div>
+                        </form>
+                        <div id="waitlist-message" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="faq-section section-padding">
+            <div class="container">
+                <div class="section-heading" data-aos="fade-up">
+                    <h2>Frequently asked questions</h2>
+                    <p>Answers to the questions small businesses ask before switching to WhatsApp-first invoicing and reminders.</p>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-lg-9" data-aos="fade-up">
+                        <div class="accordion" id="faqAccordion">
+                            <div class="accordion-item">
+                                <h3 class="accordion-header" id="faq-heading-1">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapse-1" aria-expanded="true" aria-controls="faq-collapse-1">
+                                        Can I send invoices on WhatsApp with BlueSquares?
+                                    </button>
+                                </h3>
+                                <div id="faq-collapse-1" class="accordion-collapse collapse show" aria-labelledby="faq-heading-1" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Yes. BlueSquares is built to send invoices on WhatsApp so clients see them faster and can respond immediately.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h3 class="accordion-header" id="faq-heading-2">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapse-2" aria-expanded="false" aria-controls="faq-collapse-2">
+                                        Does BlueSquares send automatic payment reminders?
+                                    </button>
+                                </h3>
+                                <div id="faq-collapse-2" class="accordion-collapse collapse" aria-labelledby="faq-heading-2" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Yes. You can automate payment reminders so overdue clients are followed up consistently without manual chasing.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h3 class="accordion-header" id="faq-heading-3">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapse-3" aria-expanded="false" aria-controls="faq-collapse-3">
+                                        How do clients pay invoices?
+                                    </button>
+                                </h3>
+                                <div id="faq-collapse-3" class="accordion-collapse collapse" aria-labelledby="faq-heading-3" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Clients can pay by bank transfer or online payment links, depending on the payment options configured by the merchant.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h3 class="accordion-header" id="faq-heading-4">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapse-4" aria-expanded="false" aria-controls="faq-collapse-4">
+                                        Does BlueSquares support recurring monthly billing?
+                                    </button>
+                                </h3>
+                                <div id="faq-collapse-4" class="accordion-collapse collapse" aria-labelledby="faq-heading-4" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Yes. BlueSquares supports recurring monthly invoice schedules so you can automate repeat billing for regular clients.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h3 class="accordion-header" id="faq-heading-5">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapse-5" aria-expanded="false" aria-controls="faq-collapse-5">
+                                        Can I sync BlueSquares with Xero or QuickBooks?
+                                    </button>
+                                </h3>
+                                <div id="faq-collapse-5" class="accordion-collapse collapse" aria-labelledby="faq-heading-5" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Yes. BlueSquares includes Xero and QuickBooks export support, especially for UK and Ireland workflows.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h3 class="accordion-header" id="faq-heading-6">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapse-6" aria-expanded="false" aria-controls="faq-collapse-6">
+                                        Do I need a credit card to start?
+                                    </button>
+                                </h3>
+                                <div id="faq-collapse-6" class="accordion-collapse collapse" aria-labelledby="faq-heading-6" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        No. You can start your 14-day BlueSquares trial without a credit card.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="final-cta section-padding">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8 text-center" data-aos="fade-up">
+                        <h2 class="display-5 fw-bold mb-4">Ready to stop chasing payments?</h2>
+                        <p class="lead mb-4">Send your first invoice in under 60 seconds — and let BlueSquares handle the follow-ups.</p>
+                        <a href="/signup" class="btn btn-light btn-lg px-5">Start getting paid faster — free</a>
+                        <p class="mt-3 mb-0"><small>No credit card required • Full access during trial</small></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <img src="/img/Logo.png" alt="BlueSquares logo" style="height: 40px; filter: brightness(0) invert(1);" class="mb-3">
+                    <p>Stop chasing clients for payments with WhatsApp-first invoicing and automated follow-ups.</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Product</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#problem">Problem</a></li>
+                        <li><a href="#solution">Solution</a></li>
+                        <li><a href="#pricing">Pricing</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Available In</h5>
+                    <p>
+                        🇿🇦 South Africa<br>
+                        🇬🇧 United Kingdom<br>
+                        🇮🇪 Ireland
+                    </p>
+                </div>
+            </div>
+            <hr class="bg-white">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; 2026 BlueSquares. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="#" class="me-3">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true });
+
+        const COUNTRIES = {
+            ZA: {
+                name: 'South Africa',
+                flag: '🇿🇦',
+                currency: 'ZAR',
+                symbol: 'R',
+                monthly: 129,
+                annual: 1290,
+                annualMonthlyEquiv: 108,
+                annualSavingPct: 17,
+                gateways: 'Paystack, PayFast, Ozow & EFT',
+                subscriptionProvider: 'Paystack',
+                accountingFeature: 'Xero & QuickBooks export available when connected'
+            },
+            GB: {
+                name: 'United Kingdom',
+                flag: '🇬🇧',
+                currency: 'GBP',
+                symbol: '£',
+                monthly: 9,
+                annual: 90,
+                annualMonthlyEquiv: 8,
+                annualSavingPct: 17,
+                gateways: 'Stripe, PayPal & bank transfer',
+                subscriptionProvider: 'PayPal',
+                accountingFeature: 'Xero & QuickBooks export included'
+            },
+            IE: {
+                name: 'Ireland',
+                flag: '🇮🇪',
+                currency: 'EUR',
+                symbol: '€',
+                monthly: 10,
+                annual: 100,
+                annualMonthlyEquiv: 8,
+                annualSavingPct: 17,
+                gateways: 'Stripe, PayPal & SEPA',
+                subscriptionProvider: 'PayPal',
+                accountingFeature: 'Xero & QuickBooks export included'
+            }
+        };
+
+        let activeCycle = localStorage.getItem('bs_cycle') || 'monthly';
+        let activeCountry = localStorage.getItem('bs_country') || null;
+
+        function renderPricingCard(code) {
+            const c = COUNTRIES[code];
+            if (!c) return;
+
+            const isAnnual = activeCycle === 'annual';
+            const displayPrice = isAnnual ? c.annualMonthlyEquiv : c.monthly;
+            const billedNote = isAnnual
+                ? `Billed ${c.symbol}${c.annual}/year <span class="badge bg-success">Save ${c.annualSavingPct}%</span>`
+                : `Billed monthly <span class="text-muted small">or save ${c.annualSavingPct}% annually</span>`;
+
+            document.getElementById('pricing-card-wrapper').innerHTML = `
+                <div class="pricing-card">
+                    <div class="text-center">
+                        <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
+                            <span style="font-size:1.8rem">${c.flag}</span>
+                            <h3 class="mb-0 text-primary">${c.name}</h3>
+                        </div>
+                        <p class="text-uppercase small fw-semibold text-primary mb-2">BlueSquares Pro</p>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-sm ${!isAnnual ? 'btn-primary' : 'btn-outline-primary'}" onclick="setCycle('monthly', '${code}')">Monthly</button>
+                            <button type="button" class="btn btn-sm ${isAnnual ? 'btn-primary' : 'btn-outline-primary'}" onclick="setCycle('annual', '${code}')">Annual</button>
+                        </div>
+                        <div class="price">${c.symbol}${displayPrice}</div>
+                        <div class="text-muted mb-3">/month</div>
+                        <div class="small mb-4">${billedNote}</div>
+                        <p class="text-muted mb-4">Recover just one delayed payment — and it pays for itself.</p>
+                    </div>
+                    <ul class="list-unstyled text-start mt-4">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-primary me-2"></i>Unlimited invoices</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-primary me-2"></i>WhatsApp &amp; email sending</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-primary me-2"></i>Automatic payment reminders</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-primary me-2"></i>Recurring monthly billing</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-primary me-2"></i>Client statements &amp; tracking</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-primary me-2"></i>Payment options (${c.gateways})</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-primary me-2"></i>${c.accountingFeature}</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-primary me-2"></i>Priority support</li>
+                    </ul>
+                    <div class="alert alert-light border mt-4 mb-0 small text-muted text-center">
+                        Subscription billed securely via <strong>${c.subscriptionProvider}</strong>
+                    </div>
+                    <div class="text-center mt-4">
+                        <a href="/signup" class="btn btn-primary btn-lg w-100">Start your free 14-day trial</a>
+                        <p class="text-muted mt-3 mb-0 small">Cancel anytime • No contracts • No setup required</p>
+                    </div>
+                </div>
+            `;
+            AOS.refresh();
+        }
+
+        function setCycle(cycle, countryCode) {
+            activeCycle = cycle;
+            localStorage.setItem('bs_cycle', cycle);
+            renderPricingCard(countryCode || activeCountry);
+        }
+
+        function updateNavCountry(code) {
+            const c = COUNTRIES[code];
+            if (!c) return;
+            document.getElementById('current-flag').textContent = c.flag;
+            document.getElementById('current-country-label').textContent = c.name;
+        }
+
+        function applyCountry(code, isSupported) {
+            activeCountry = code;
+            localStorage.setItem('bs_country', code);
+
+            if (isSupported && COUNTRIES[code]) {
+                document.getElementById('waitlist').style.display = 'none';
+                document.getElementById('pricing').style.display = '';
+                renderPricingCard(code);
+                updateNavCountry(code);
+            } else {
+                document.getElementById('waitlist').style.display = 'block';
+                document.getElementById('user-country-name').textContent = COUNTRIES[code]?.name || code;
+                document.getElementById('pricing').style.display = 'none';
+                updateNavCountry(code);
+            }
+        }
+
+        function switchCountry(code) {
+            applyCountry(code, !!COUNTRIES[code]);
+            document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function detectCountry() {
+            const saved = localStorage.getItem('bs_country');
+            if (saved && COUNTRIES[saved]) {
+                applyCountry(saved, true);
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/public/geo-detect');
+                const data = await res.json();
+                applyCountry(data.countryCode, data.isSupported);
+            } catch {
+                applyCountry('ZA', true);
+            }
+        }
+
+        document.getElementById('waitlist-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('waitlist-email').value;
+            const msgDiv = document.getElementById('waitlist-message');
+            const c = COUNTRIES[activeCountry] || { name: activeCountry, code: activeCountry };
+
+            try {
+                const res = await fetch('/api/public/waitlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, country: c.name, countryCode: activeCountry })
+                });
+
+                if (res.ok) {
+                    msgDiv.innerHTML = '<div class="alert alert-success">Thanks. We’ll let you know when BlueSquares is available in your market.</div>';
+                    document.getElementById('waitlist-form').reset();
+                } else {
+                    msgDiv.innerHTML = '<div class="alert alert-danger">Something went wrong. Please try again.</div>';
+                }
+            } catch {
+                msgDiv.innerHTML = '<div class="alert alert-danger">Something went wrong. Please try again.</div>';
+            }
+        });
+
+        detectCountry();
+    </script>
+</body>
+</html>

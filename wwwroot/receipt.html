@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Receipt - BlueSquares</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --primary-blue: #0066CC; --light-blue: #E6F2FF; }
+        body { background: var(--light-blue); padding: 20px; }
+        .receipt-container { max-width: 800px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 40px; }
+        .receipt-header { border-bottom: 3px solid #28a745; padding-bottom: 20px; margin-bottom: 30px; }
+        .status-badge { font-size: 1rem; padding: 8px 20px; border-radius: 50px; }
+        @media print { body { background: white; padding: 0; } .receipt-container { box-shadow: none; } .action-buttons { display: none !important; } }
+    </style>
+</head>
+<body>
+    <div class="receipt-container">
+        <div class="action-buttons text-end mb-3 d-print-none">
+            <button class="btn btn-outline-primary" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
+        </div>
+        <div id="receipt-content">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-3">Loading receipt...</p>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const receiptId = window.location.pathname.split('/').pop();
+        async function loadReceipt() {
+            try {
+                const response = await fetch(`/api/public/invoice/${receiptId}`);
+                if (!response.ok) throw new Error('Receipt not found');
+                const data = await response.json();
+                if (data.invoice.status !== 'Paid') {
+                    document.getElementById('receipt-content').innerHTML = '<div class="alert alert-info">This invoice has not been paid yet.</div>';
+                    return;
+                }
+                displayReceipt(data);
+            } catch (e) {
+                document.getElementById('receipt-content').innerHTML = '<div class="alert alert-danger">Receipt not found.</div>';
+            }
+        }
+        function displayReceipt(data) {
+            const { invoice, merchant, client, lineItems } = data;
+            const content = `
+                <div class="receipt-header">
+                    <div class="row">
+                        <div class="col-md-6">
+                            ${merchant.logoUrl ? `<img src="${merchant.logoUrl}" alt="${merchant.businessName}" class="mb-3" style="max-height:60px">` : ''}
+                            <h3>${merchant.businessName}</h3>
+                            ${merchant.address ? `<p class="text-muted mb-0">${merchant.address}</p>` : ''}
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <h2 class="text-success">PAYMENT RECEIPT</h2>
+                            <p class="mb-1"><strong>Invoice #:</strong> ${invoice.invoiceNumber}</p>
+                            <p class="mb-1"><strong>Paid:</strong> ${formatDate(invoice.paidDate)}</p>
+                            <span class="badge status-badge bg-success">Paid</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5>Paid By:</h5>
+                        <p class="mb-0"><strong>${client.name}</strong></p>
+                        ${client.email ? `<p class="text-muted mb-0">${client.email}</p>` : ''}
+                    </div>
+                </div>
+                ${lineItems && lineItems.length > 0 ? `
+                <table class="table">
+                    <thead><tr><th>Description</th><th class="text-center">Qty</th><th class="text-end">Unit Price</th><th class="text-end">Total</th></tr></thead>
+                    <tbody>${lineItems.map(i => `<tr><td>${i.description}</td><td class="text-center">${i.quantity}</td><td class="text-end">${formatCurrency(i.unitPrice, invoice.currency)}</td><td class="text-end">${formatCurrency(i.total, invoice.currency)}</td></tr>`).join('')}</tbody>
+                </table>` : ''}
+                <div class="bg-light p-4 rounded mt-4">
+                    <div class="d-flex justify-content-between">
+                        <strong>Amount Paid:</strong>
+                        <strong class="text-success" style="font-size:1.5rem">${formatCurrency(invoice.totalAmount, invoice.currency)}</strong>
+                    </div>
+                </div>
+                <div class="text-center mt-5 text-muted"><small>Powered by <a href="https://squares.blue">BlueSquares</a></small></div>
+            `;
+            document.getElementById('receipt-content').innerHTML = content;
+        }
+        function formatCurrency(a, c) { const s = { ZAR: 'R', GBP: '£', EUR: '€' }; return `${s[c] || c} ${Number(a).toLocaleString('en', { minimumFractionDigits: 2 })}`; }
+        function formatDate(d) { return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }); }
+        loadReceipt();
+    </script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+# BlueSquares .gitignore
+
+## .NET
+bin/
+obj/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+*.csproj.user
+
+## Rider
+.idea/
+
+## Database
+*.db
+*.db-shm
+*.db-wal
+
+## Firebase credentials
+firebase-credentials.json
+**/firebase-credentials*.json
+
+## Environment files
+.env
+.env.local
+.env.production
+appsettings.Development.json
+appsettings.Production.json
+
+## Secrets
+**/secrets/
+*.key
+*.pem
+
+## Logs
+logs/
+*.log
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Node (if using any build tools)
+node_modules/
+package-lock.json
+yarn.lock
+
+## Publish
+publish/
+*.publish.xml
+
+## User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## Visual Studio cache/options
+.vs/
+
+## NuGet Packages
+*.nupkg
+*.snupkg
+**/packages/*
+
+## SQL Server files
+*.mdf
+*.ldf
+*.ndf
+
+## Testing
+TestResults/
+*.trx
+*.coverage
+
+## Backup files
+*.bak
+*.backup
+
+## DO NOT COMMIT
+# API Keys, tokens, passwords
+secrets.txt
+credentials.txt
+keys.txt
+
+# Production database dumps
+*.sql.gz
+*.dump
+
+# Certificates
+*.pfx
+*.p12
+*.cer (except public certs)

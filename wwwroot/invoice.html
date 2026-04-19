@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice - BlueSquares</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #0066CC;
+            --light-blue: #E6F2FF;
+        }
+
+        body {
+            background: var(--light-blue);
+            padding: 20px;
+        }
+
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 40px;
+        }
+
+        .invoice-header {
+            border-bottom: 3px solid var(--primary-blue);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .merchant-logo {
+            max-height: 60px;
+            max-width: 200px;
+        }
+
+        .invoice-table {
+            width: 100%;
+            margin: 30px 0;
+        }
+
+        .invoice-table th {
+            background: var(--light-blue);
+            padding: 12px;
+            text-align: left;
+        }
+
+        .invoice-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .total-section {
+            background: var(--light-blue);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .btn-pay {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-pay:hover {
+            background: #218838;
+            color: white;
+        }
+
+        .payment-options {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .status-badge {
+            font-size: 1rem;
+            padding: 8px 20px;
+            border-radius: 50px;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .invoice-container {
+                box-shadow: none;
+            }
+            .btn-pay, .payment-options, .action-buttons {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <div class="action-buttons text-end mb-3 d-print-none">
+            <button class="btn btn-outline-primary" onclick="window.print()">
+                <i class="bi bi-printer"></i> Print
+            </button>
+        </div>
+
+        <div id="invoice-content">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Loading invoice...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Get invoice ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const invoiceId = window.location.pathname.split('/').pop();
+
+        async function loadInvoice() {
+            try {
+                const response = await fetch(`/api/public/invoice/${invoiceId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Invoice not found');
+                }
+
+                const data = await response.json();
+                displayInvoice(data);
+            } catch (error) {
+                console.error('Error loading invoice:', error);
+                document.getElementById('invoice-content').innerHTML = `
+                    <div class="alert alert-danger">
+                        <h4>Invoice Not Found</h4>
+                        <p>The invoice you're looking for doesn't exist or has been removed.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayInvoice(data) {
+            const { invoice, merchant, client, lineItems } = data;
+            const isPaid = invoice.status === 'Paid';
+
+            const content = `
+                <div class="invoice-header">
+                    <div class="row">
+                        <div class="col-md-6">
+                            ${merchant.logoUrl ? `<img src="${merchant.logoUrl}" alt="${merchant.businessName}" class="merchant-logo mb-3">` : ''}
+                            <h3>${merchant.businessName}</h3>
+                            ${merchant.address ? `<p class="text-muted mb-0">${merchant.address}</p>` : ''}
+                            ${merchant.contactNumber ? `<p class="text-muted">${merchant.contactNumber}</p>` : ''}
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <h2 class="text-primary">INVOICE</h2>
+                            <p class="mb-1"><strong>Invoice #:</strong> ${invoice.invoiceNumber}</p>
+                            <p class="mb-1"><strong>Date:</strong> ${formatDate(invoice.invoiceDate)}</p>
+                            <p class="mb-1"><strong>Due Date:</strong> ${formatDate(invoice.dueDate)}</p>
+                            <p class="mt-3">
+                                <span class="badge status-badge ${getStatusBadgeClass(invoice.status)}">${invoice.status}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5>Bill To:</h5>
+                        <p class="mb-0"><strong>${client.name}</strong></p>
+                        ${client.email ? `<p class="text-muted mb-0">${client.email}</p>` : ''}
+                    </div>
+                </div>
+
+                ${lineItems && lineItems.length > 0 ? `
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th class="text-center">Quantity</th>
+                            <th class="text-end">Unit Price</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${lineItems.map(item => `
+                            <tr>
+                                <td>${item.description}</td>
+                                <td class="text-center">${item.quantity}</td>
+                                <td class="text-end">${formatCurrency(item.unitPrice, invoice.currency)}</td>
+                                <td class="text-end">${formatCurrency(item.total, invoice.currency)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                ` : ''}
+
+                <div class="total-section">
+                    <div class="row">
+                        <div class="col-md-6 offset-md-6">
+                            <div class="d-flex justify-content-between mb-2">
+                                <strong>Total Amount:</strong>
+                                <strong class="text-primary" style="font-size: 1.5rem;">${formatCurrency(invoice.totalAmount, invoice.currency)}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                ${invoice.notes ? `
+                <div class="mt-4">
+                    <h6>Notes:</h6>
+                    <p class="text-muted">${invoice.notes}</p>
+                </div>
+                ` : ''}
+
+                ${!isPaid ? `
+                <div class="payment-options d-print-none">
+                    <h5 class="mb-3"><i class="bi bi-credit-card"></i> Payment Options</h5>
+                    
+                    <a href="/pay/${invoice.id}" class="btn btn-pay">
+                        <i class="bi bi-credit-card-2-front"></i> Pay Now Online
+                    </a>
+
+                    ${merchant.bankName ? `
+                    <div class="mt-4 p-3 bg-white rounded">
+                        <h6>Bank Transfer / EFT / PayShap</h6>
+                        <table class="table table-sm table-borderless">
+                            <tr>
+                                <td><strong>Bank:</strong></td>
+                                <td>${merchant.bankName}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Account Number:</strong></td>
+                                <td>${merchant.accountNumber}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Branch Code:</strong></td>
+                                <td>${merchant.branchCode}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Account Holder:</strong></td>
+                                <td>${merchant.accountHolderName || merchant.businessName}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Reference:</strong></td>
+                                <td><span class="badge bg-warning text-dark">${invoice.paymentRefCode}</span></td>
+                            </tr>
+                        </table>
+                        <small class="text-muted">⚠️ Please use the reference code above for your payment</small>
+                    </div>
+                    ` : ''}
+
+                    <div class="mt-4 text-center">
+                        <p class="text-muted">Need help? <a href="https://wa.me/${merchant.contactNumber?.replace(/\D/g, '')}" target="_blank">Contact us on WhatsApp</a></p>
+                    </div>
+                </div>
+                ` : `
+                <div class="alert alert-success mt-4">
+                    <h5><i class="bi bi-check-circle"></i> Payment Received</h5>
+                    <p class="mb-0">This invoice has been paid. Thank you for your business!</p>
+                </div>
+                `}
+
+                <div class="text-center mt-5 text-muted">
+                    <small>Powered by <a href="https://squares.blue" target="_blank">BlueSquares</a></small>
+                </div>
+            `;
+
+            document.getElementById('invoice-content').innerHTML = content;
+        }
+
+        function formatCurrency(amount, currency) {
+            const symbols = {
+                'ZAR': 'R',
+                'GBP': '£',
+                'EUR': '€'
+            };
+            const symbol = symbols[currency] || currency;
+            return `${symbol} ${Number(amount).toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+        }
+
+        function getStatusBadgeClass(status) {
+            const classes = {
+                'Draft': 'bg-secondary',
+                'Sent': 'bg-info',
+                'Viewed': 'bg-primary',
+                'Paid': 'bg-success',
+                'Overdue': 'bg-danger',
+                'Disputed': 'bg-warning'
+            };
+            return classes[status] || 'bg-secondary';
+        }
+
+        // Load invoice on page load
+        loadInvoice();
+    </script>
+</body>
+</html>

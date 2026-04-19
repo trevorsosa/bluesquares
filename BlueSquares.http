@@ -1,0 +1,6 @@
+@BlueSquares_HostAddress = http://localhost:5030
+
+GET {{BlueSquares_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

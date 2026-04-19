@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Invoice - BlueSquares</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background: #f8f9fa; }
+        .sidebar { min-height: 100vh; background: white; box-shadow: 2px 0 10px rgba(0,0,0,0.05); position: fixed; left: 0; top: 0; width: 250px; padding: 20px 0; }
+        .main-content { margin-left: 250px; padding: 30px; }
+        .nav-link { color: #333; padding: 12px 20px; display: flex; align-items: center; }
+        .nav-link.active, .nav-link:hover { background: #E6F2FF; color: #0066CC; }
+        .nav-link i { margin-right: 10px; }
+        .card { border: none; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; padding: 20px; } }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="text-center mb-4">
+            <img src="/img/Logo.png" alt="BlueSquares" style="max-width:150px;">
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link" href="/dashboard"><i class="bi bi-grid"></i> Dashboard</a>
+            <a class="nav-link active" href="/invoices"><i class="bi bi-file-text"></i> Invoices</a>
+            <a class="nav-link" href="/clients"><i class="bi bi-people"></i> Clients</a>
+            <a class="nav-link" href="/queries"><i class="bi bi-chat-dots"></i> Queries</a>
+            <a class="nav-link" href="/settings"><i class="bi bi-gear"></i> Settings</a>
+            <hr>
+            <a class="nav-link text-danger" href="#" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+            <div>
+                <h1 class="mb-1">Create Invoice</h1>
+                <p class="text-muted mb-0">Build and send a one-off invoice in minutes.</p>
+            </div>
+            <a href="/invoices" class="btn btn-outline-primary"><i class="bi bi-arrow-left"></i> Back to Invoices</a>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <form id="invoice-form" class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Client</label>
+                        <select class="form-select" id="client-id" required></select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Due Date</label>
+                        <input type="date" class="form-control" id="due-date">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Invoice Number (optional)</label>
+                        <input type="text" class="form-control" id="invoice-number" placeholder="Auto-generate">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-control" id="invoice-notes" rows="3" placeholder="Add payment notes or terms"></textarea>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="mb-0">Line Items</h5>
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="add-line-item">
+                                <i class="bi bi-plus-circle"></i> Add Line Item
+                            </button>
+                        </div>
+                        <div id="line-items" class="d-grid gap-3"></div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="alert alert-light border mb-0">
+                            <div class="small text-muted">Invoice Total</div>
+                            <div class="fs-4 fw-bold text-primary" id="invoice-total">R0.00</div>
+                        </div>
+                    </div>
+                    <div class="col-md-8 d-flex align-items-end">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="send-email">
+                            <label class="form-check-label" for="send-email">
+                                Also send by email after creating
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-12 d-flex gap-2 flex-wrap">
+                        <button type="submit" class="btn btn-primary">Create Invoice</button>
+                        <button type="button" class="btn btn-outline-secondary" id="save-draft-btn">Create Draft Only</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="toast-container"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        if (!checkAuth()) window.location.href = '/login';
+
+        let merchantProfile = null;
+        let createAndSend = true;
+
+        function addLineItem(item = { description: '', quantity: 1, unitPrice: 0 }) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'border rounded-4 p-3 bg-white line-item';
+            wrapper.innerHTML = `
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Description</label>
+                        <input type="text" class="form-control line-description" value="${escapeHtml(item.description)}" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Qty</label>
+                        <input type="number" min="0.01" step="0.01" class="form-control line-quantity" value="${item.quantity}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Unit Price</label>
+                        <input type="number" min="0" step="0.01" class="form-control line-unit-price" value="${item.unitPrice}">
+                    </div>
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="button" class="btn btn-outline-danger w-100 remove-line-item"><i class="bi bi-trash"></i></button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('line-items').appendChild(wrapper);
+            wrapper.querySelectorAll('input').forEach(input => input.addEventListener('input', updateTotal));
+            wrapper.querySelector('.remove-line-item').addEventListener('click', () => {
+                wrapper.remove();
+                updateTotal();
+            });
+            updateTotal();
+        }
+
+        function collectLineItems() {
+            return Array.from(document.querySelectorAll('.line-item')).map(item => ({
+                description: item.querySelector('.line-description').value.trim(),
+                quantity: Number(item.querySelector('.line-quantity').value || 0),
+                unitPrice: Number(item.querySelector('.line-unit-price').value || 0)
+            })).filter(item => item.description && item.quantity > 0);
+        }
+
+        function updateTotal() {
+            const total = collectLineItems().reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+            const currency = merchantProfile?.currency || 'ZAR';
+            document.getElementById('invoice-total').textContent = formatCurrency(total, currency);
+        }
+
+        async function loadClients() {
+            const [clientsResult, profileResult] = await Promise.all([
+                apiJson('/api/clients'),
+                apiJson('/api/merchants/profile')
+            ]);
+
+            if (!clientsResult?.ok || !profileResult?.ok) {
+                showToast('Could not load invoice form.', 'error');
+                return;
+            }
+
+            merchantProfile = profileResult.data;
+            const clients = clientsResult.data || [];
+            const clientSelect = document.getElementById('client-id');
+            clientSelect.innerHTML = clients.length
+                ? clients.map(client => `<option value="${client.id}">${escapeHtml(client.name)}${client.companyName ? ` (${escapeHtml(client.companyName)})` : ''}</option>`).join('')
+                : '<option value="">Add a client first</option>';
+
+            const defaultDueDate = new Date();
+            defaultDueDate.setDate(defaultDueDate.getDate() + 7);
+            document.getElementById('due-date').value = defaultDueDate.toISOString().split('T')[0];
+
+            if (!clients.length) {
+                showToast('Add at least one client before creating an invoice.', 'info');
+            }
+        }
+
+        async function createInvoice() {
+            const lineItems = collectLineItems();
+            if (!lineItems.length) {
+                showToast('Add at least one line item.', 'error');
+                return;
+            }
+
+            const payload = {
+                clientId: document.getElementById('client-id').value,
+                invoiceNumber: document.getElementById('invoice-number').value.trim() || null,
+                dueDate: document.getElementById('due-date').value || null,
+                notes: document.getElementById('invoice-notes').value.trim(),
+                totalAmount: lineItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0),
+                lineItems
+            };
+
+            const createResponse = await apiCall('/api/invoices', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+
+            if (!createResponse || !createResponse.ok) {
+                const error = await createResponse?.json().catch(() => null);
+                showToast(error?.message || 'Could not create invoice.', 'error');
+                return;
+            }
+
+            const createdInvoice = await createResponse.json();
+
+            if (createAndSend) {
+                const sendResponse = await apiCall(`/api/invoices/${createdInvoice.id}/send`, {
+                    method: 'POST',
+                    body: JSON.stringify({ sendEmail: document.getElementById('send-email').checked })
+                });
+
+                if (!sendResponse || !sendResponse.ok) {
+                    showToast('Invoice created, but sending failed.', 'info');
+                } else {
+                    showToast('Invoice created and sent.', 'success');
+                }
+            } else {
+                showToast('Invoice created as draft.', 'success');
+            }
+
+            window.location.href = `/invoice-detail?id=${createdInvoice.id}`;
+        }
+
+        document.getElementById('add-line-item').addEventListener('click', () => addLineItem());
+        document.getElementById('save-draft-btn').addEventListener('click', () => {
+            createAndSend = false;
+            document.getElementById('invoice-form').requestSubmit();
+        });
+
+        document.getElementById('invoice-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            if (!document.getElementById('client-id').value) {
+                showToast('Choose a client first.', 'error');
+                return;
+            }
+            await createInvoice();
+            createAndSend = true;
+        });
+
+        addLineItem();
+        loadClients();
+    </script>
+</body>
+</html>

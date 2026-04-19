@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Statement - BlueSquares</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --primary-blue: #0066CC; --light-blue: #E6F2FF; }
+        body { background: var(--light-blue); padding: 20px; }
+        .statement-container { max-width: 900px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 40px; }
+        @media print { body { background: white; padding: 0; } .statement-container { box-shadow: none; } }
+    </style>
+</head>
+<body>
+    <div class="statement-container">
+        <div id="statement-content">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-3">Loading statement...</p>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const clientId = window.location.pathname.split('/').pop();
+        async function loadStatement() {
+            try {
+                const response = await fetch(`/api/public/statement/${clientId}`);
+                if (!response.ok) throw new Error('Statement not found');
+                const data = await response.json();
+                displayStatement(data);
+            } catch (e) {
+                document.getElementById('statement-content').innerHTML = '<div class="alert alert-danger">Statement not found or not enabled.</div>';
+            }
+        }
+        function displayStatement(data) {
+            const { client, merchant, statement } = data;
+            const content = `
+                <div class="text-center mb-4">
+                    ${merchant.logoUrl ? `<img src="${merchant.logoUrl}" alt="" style="max-height:60px">` : ''}
+                    <h3>${merchant.businessName}</h3>
+                    ${merchant.contactNumber ? `<p class="text-muted">${merchant.contactNumber}</p>` : ''}
+                </div>
+                <h4 class="border-bottom pb-2 mb-4">Account Statement</h4>
+                <p><strong>Client:</strong> ${client.name} ${client.companyName ? `(${client.companyName})` : ''}</p>
+                <p><strong>As of:</strong> ${formatDate(statement.generatedDate)}</p>
+                <p><strong>Total Outstanding:</strong> <span class="text-danger fw-bold">${formatCurrency(statement.totalOutstanding, statement.currency || 'ZAR')}</span></p>
+                <table class="table mt-4">
+                    <thead><tr><th>Invoice #</th><th>Date</th><th>Due Date</th><th>Amount</th><th>Status</th></tr></thead>
+                    <tbody>${statement.invoices.map(i => `<tr><td>${i.invoiceNumber}</td><td>${formatDate(i.invoiceDate)}</td><td>${formatDate(i.dueDate)}</td><td>${formatCurrency(i.totalAmount, statement.currency || 'ZAR')}</td><td><span class="badge ${i.status === 'Paid' ? 'bg-success' : 'bg-warning'}">${i.status}</span></td></tr>`).join('')}</tbody>
+                </table>
+                <div class="text-center mt-5 text-muted"><small>Powered by <a href="https://squares.blue">BlueSquares</a></small></div>
+            `;
+            document.getElementById('statement-content').innerHTML = content;
+        }
+        function formatCurrency(a, c) { const s = { ZAR: 'R', GBP: '£', EUR: '€' }; return `${s[c] || c} ${Number(a).toLocaleString('en', { minimumFractionDigits: 2 })}`; }
+        function formatDate(d) { return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); }
+        loadStatement();
+    </script>
+</body>
+</html>

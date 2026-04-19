@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - BlueSquares</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #0066CC;
+            --dark-blue: #004A99;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%);
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .signup-container {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .logo {
+            max-width: 200px;
+            margin: 0 auto 30px;
+            display: block;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            border: none;
+            padding: 12px;
+            font-weight: 600;
+            border-radius: 50px;
+        }
+
+        .btn-primary:hover {
+            background: var(--dark-blue);
+        }
+
+        .form-control {
+            padding: 12px;
+            border-radius: 10px;
+        }
+
+        .social-btn {
+            border-radius: 50px;
+            padding: 12px;
+            font-weight: 600;
+            border: 1px solid #d8e2f0;
+            background: #fff;
+        }
+
+        .social-btn:hover {
+            background: #f8fbff;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 42%;
+            height: 1px;
+            background: #ddd;
+        }
+
+        .divider::before {
+            left: 0;
+        }
+
+        .divider::after {
+            right: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-page">
+        <div class="signup-container">
+            <img src="/img/Logo.png" alt="BlueSquares" class="logo">
+            <h2 class="text-center mb-4" id="signup-title">Create Your Account</h2>
+            <div class="alert alert-info small" role="alert">
+                Start sending invoices fast: add your bank transfer details after signup, then connect online payments later if you want card checkout.
+            </div>
+
+            <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+            <div id="success-message" class="alert alert-success" style="display: none;"></div>
+
+            <form id="signup-form">
+                <div class="mb-3">
+                    <label class="form-label">Business Name *</label>
+                    <input type="text" class="form-control" id="business-name" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email *</label>
+                    <input type="email" class="form-control" id="email" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password *</label>
+                    <input type="password" class="form-control" id="password" minlength="6" required>
+                    <small class="text-muted">At least 6 characters</small>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Country *</label>
+                    <select class="form-control" id="country" required>
+                        <option value="">Select your country</option>
+                        <option value="ZA">South Africa</option>
+                        <option value="GB">United Kingdom</option>
+                        <option value="IE">Ireland</option>
+                    </select>
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="terms" required>
+                    <label class="form-check-label" for="terms">
+                        I agree to the <a href="#" target="_blank">Terms of Service</a>
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mb-3">
+                    <span id="signup-btn-text">Create Account</span>
+                    <span id="signup-spinner" class="spinner-border spinner-border-sm" style="display: none;"></span>
+                </button>
+            </form>
+
+            <div class="divider">OR</div>
+
+            <div class="d-grid gap-2 mb-3">
+                <button type="button" class="btn social-btn" id="google-signup-btn">
+                    <i class="bi bi-google me-2"></i> Continue with Google
+                </button>
+                <button type="button" class="btn social-btn" id="facebook-signup-btn">
+                    <i class="bi bi-facebook me-2"></i> Continue with Facebook
+                </button>
+            </div>
+
+            <div class="text-center">
+                <p>Already have an account? <a href="/login">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import {
+            signupWithEmail,
+            loginWithProvider,
+            googleProvider,
+            facebookProvider,
+            storeSession,
+            createOrUpdateMerchantProfile,
+            currencyFromCountry,
+            getPendingSocialProfile,
+            clearPendingSocialProfile,
+            friendlyAuthError
+        } from '/js/firebase-client.js';
+
+        const passwordField = document.getElementById('password');
+        const passwordWrapper = passwordField.closest('.mb-3');
+        const signupTitle = document.getElementById('signup-title');
+        const pendingSocialProfile = new URLSearchParams(window.location.search).get('completeProfile') === '1'
+            ? getPendingSocialProfile()
+            : null;
+
+        if (pendingSocialProfile) {
+            signupTitle.textContent = 'Complete Your Account';
+            document.getElementById('email').value = pendingSocialProfile.email || '';
+            document.getElementById('business-name').value = pendingSocialProfile.name || '';
+            document.getElementById('email').readOnly = true;
+            passwordWrapper.style.display = 'none';
+            passwordField.required = false;
+            document.getElementById('signup-btn-text').textContent = 'Complete Account';
+        }
+
+        async function saveMerchantProfile(token, payload) {
+            const response = await createOrUpdateMerchantProfile(token, payload);
+            if (!response.ok) {
+                throw new Error('Failed to create merchant profile');
+            }
+
+            clearPendingSocialProfile();
+            localStorage.setItem('authToken', token);
+            localStorage.setItem('userEmail', payload.email);
+            return response;
+        }
+
+        function buildProfilePayload() {
+            const businessName = document.getElementById('business-name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const country = document.getElementById('country').value;
+
+            return {
+                businessName,
+                email,
+                country,
+                currency: currencyFromCountry(country)
+            };
+        }
+
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('error-message');
+            const successDiv = document.getElementById('success-message');
+            const signupBtn = document.getElementById('signup-btn-text');
+            const spinner = document.getElementById('signup-spinner');
+
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            signupBtn.style.display = 'none';
+            spinner.style.display = 'inline-block';
+
+            try {
+                const profilePayload = buildProfilePayload();
+                const token = pendingSocialProfile?.token
+                    ? pendingSocialProfile.token
+                    : await storeSession((await signupWithEmail(email, password)).user, email);
+
+                await saveMerchantProfile(token, profilePayload);
+
+                successDiv.textContent = 'Account created successfully! Redirecting...';
+                successDiv.style.display = 'block';
+                
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 1500);
+            } catch (error) {
+                errorDiv.textContent = friendlyAuthError(error);
+                errorDiv.style.display = 'block';
+                signupBtn.style.display = 'inline';
+                spinner.style.display = 'none';
+            }
+        });
+
+        async function handleSocialSignup(provider, providerName) {
+            const errorDiv = document.getElementById('error-message');
+            const successDiv = document.getElementById('success-message');
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            const profilePayload = buildProfilePayload();
+            if (!profilePayload.country) {
+                errorDiv.textContent = 'Please select your country before continuing with social sign-up.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (!document.getElementById('terms').checked) {
+                errorDiv.textContent = 'Please accept the Terms of Service before continuing.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const result = await loginWithProvider(provider);
+                const socialName = result.user.displayName || '';
+                const socialEmail = result.user.email || profilePayload.email;
+                const socialToken = await storeSession(result.user, socialEmail);
+
+                if (!profilePayload.businessName) {
+                    profilePayload.businessName = socialName || socialEmail.split('@')[0];
+                    document.getElementById('business-name').value = profilePayload.businessName;
+                }
+
+                profilePayload.email = socialEmail;
+                document.getElementById('email').value = socialEmail;
+
+                await saveMerchantProfile(socialToken, profilePayload);
+
+                successDiv.textContent = `Signed up with ${providerName} successfully! Redirecting...`;
+                successDiv.style.display = 'block';
+
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 1500);
+            } catch (error) {
+                errorDiv.textContent = friendlyAuthError(error);
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        document.getElementById('google-signup-btn').addEventListener('click', () => handleSocialSignup(googleProvider, 'Google'));
+        document.getElementById('facebook-signup-btn').addEventListener('click', () => handleSocialSignup(facebookProvider, 'Facebook'));
+    </script>
+</body>
+</html>
